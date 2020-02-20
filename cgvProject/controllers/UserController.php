@@ -16,10 +16,10 @@ try {
          */
         case "createUser":
         {
-            $id = $req->id;
-            $password = $req->password;
+            $userId = $req->userId;
+            $pw = $req->pw;
             $email = $req->email;
-            $name = $req->name;
+            $userName = $req->userName;
             $sexStatus = $req-> sexStatus;
             $ageStatus = $req-> ageStatus;
 
@@ -27,47 +27,47 @@ try {
             $validPw = '/^(?=.*[a-zA-Z])(?=.*[0-9]).{6,16}$/';
             $validBirth = '/^(19[0-9][0-9]|20\d{2})(0[0-9]|1[0-2])(0[1-9]|[1-2][0-9]|3[0-1])$/';
 
-            if (empty($id) || empty($password) || empty($email) || empty($name) || empty($sexStatus) || empty($ageStatus)) {
+            if (empty($userId) || empty($pw) || empty($email) || empty($userName) || empty($sexStatus) || empty($ageStatus)) {
                 $res->isSucces = FALSE;
                 $res->code = 200;
                 $res->message = "입력을 확인해주세요.";
                 echo json_encode($res, JSON_NUMERIC_CHECK);
                 return;
             } else {
-                if (isUser($id)) {
+                if (isUser($userId)) {
                     $res->isSucces = FALSE;
-                    $res->code = 200;
+                    $res->code = 201;
                     $res->message = "존재하는 ID입니다";
                     echo json_encode($res, JSON_NUMERIC_CHECK);
                     return;
-                } else if (!preg_match($validId, "$id")) {
+                } else if (!preg_match($validId, "$userId")) {
                     $res->isSucces = FALSE;
-                    $res->code = 200;
+                    $res->code = 202;
                     $res->message = "ID는 영문 숫자 혼용 4 ~ 12글자 사이로 입력해주세요.";
                     echo json_encode($res, JSON_NUMERIC_CHECK);
                     return;
-                } else if (!preg_match($validPw, "$password")) {
+                } else if (!preg_match($validPw, "$pw")) {
                     $res->isSucces = FALSE;
-                    $res->code = 200;
+                    $res->code = 203;
                     $res->message = "비밀번호는 6~16 글자 사이의 영문 숫자 혼용이 필요합니다.";
                     echo json_encode($res, JSON_NUMERIC_CHECK);
                     return;
                 }
                 else if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
                     $res->isSucces = FALSE;
-                    $res->code = 200;
+                    $res->code = 204;
                     $res->message = "이메일 형식에 부합하지 않습니다.";
                     echo json_encode($res, JSON_NUMERIC_CHECK);
                     return;
                 } else if (!preg_match($validBirth, "$ageStatus")) {
                     $res->isSucces = FALSE;
-                    $res->code = 200;
+                    $res->code = 205;
                     $res->message = "생년월일 형식에 부합하지 않습니다.";
                     echo json_encode($res, JSON_NUMERIC_CHECK);
                     return;
                 }
                 else {
-                    createUser($id, $password, $email, $name, $sexStatus, $ageStatus);
+                    createUser($userId, $pw, $email, $userName, $sexStatus, $ageStatus);
                     $res->isSuccess = TRUE;
                     $res->code = 100;
                     $res->message = "회원가입 완료";
@@ -75,7 +75,7 @@ try {
                     break;
                 }
                 $res->isSucces = FALSE;
-                $res->code = 200;
+                $res->code = 206;
                 $res->message = "회원가입에 실패하였습니다.";
                 echo json_encode($res, JSON_NUMERIC_CHECK);
                 return;

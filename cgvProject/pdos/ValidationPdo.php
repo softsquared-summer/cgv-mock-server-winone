@@ -1,13 +1,13 @@
 <?php
 
 /*DB에 유저 유뮤 확인 SELECT*/
-function isUser($id){
+function isUser($userId){
     $pdo = pdoSqlConnect();
-    $query = "SELECT EXISTS(SELECT * FROM users WHERE id= ?) AS exist;";
+    $query = "SELECT EXISTS(SELECT * FROM users WHERE userId= ?) AS exist;";
 
     $st = $pdo->prepare($query);
     //    $st->execute([$param,$param]);
-    $st->execute([$id]);
+    $st->execute([$userId]);
     $st->setFetchMode(PDO::FETCH_ASSOC);
     $res = $st->fetchAll();
 
