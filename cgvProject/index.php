@@ -29,8 +29,9 @@ $dispatcher = FastRoute\simpleDispatcher(function (FastRoute\RouteCollector $r) 
     $r->addRoute('POST', '/users', ['UserController', 'createUser']);
 
     $r->addRoute('GET', '/movie', ['CgvController', 'movieList']);
-    $r->addRoute('GET', '/movie/{id}', ['CgvController', 'movie']);
-    
+    $r->addRoute('GET', '/movie/{movieId}', ['CgvController', 'movie']);
+    $r->addRoute('POST', '/movie', ['CgvController', 'moviePost']);
+    $r->addRoute('DELETE', '/movie/{movieId}', ['CgvController', 'movieDelete']);
 //    $r->addRoute('GET', '/users', 'get_all_users_handler');
 //    // {id} must be a number (\d+)
 //    $r->addRoute('GET', '/user/{id:\d+}', 'get_user_handler');
