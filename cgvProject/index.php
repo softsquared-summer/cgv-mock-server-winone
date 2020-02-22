@@ -5,6 +5,7 @@ require './vendor/autoload.php';
 require './pdos/CgvPdo.php';
 require './pdos/ValidationPdo.php';
 require './pdos/encryptDBPdo.php';
+require './pdos/BookPdo.php';
 use \Monolog\Logger as Logger;
 use Monolog\Handler\StreamHandler;
 
@@ -31,8 +32,19 @@ $dispatcher = FastRoute\simpleDispatcher(function (FastRoute\RouteCollector $r) 
     $r->addRoute('GET', '/movie', ['CgvController', 'movieList']);
     $r->addRoute('GET', '/movie/{movieId}', ['CgvController', 'movie']);
     $r->addRoute('POST', '/movie', ['CgvController', 'moviePost']);
-    $r->addRoute('DELETE', '/movie/{movieId}', ['CgvController', 'movieDelete']);
-//    $r->addRoute('GET', '/users', 'get_all_users_handler');
+    $r->addRoute('DELETE', '/movie/{movieId}', ['CgvController', 'movieDelete']); // API NO.6
+
+    $r->addRoute('GET', '/book', ['BookController', 'selectMovie']); // API NO.7
+    $r->addRoute('GET', '/book/{movieId}', ['BookController', 'checkMovieTime']); // 기본이면 오늘날짜
+    //$r->addRoute('GET', '/book/{movieId}/theater', ['BookController', 'checkBookMovie']);
+    //$r->addRoute('GET', '/book/{movieId}/theater/{theaterId}/{theaterRoom}', ['BookController', 'reCheckSeatNTime']);
+    /*body parameter
+    * 날짜 인원 관
+    *
+    */
+    //$r->addRoute('POST', '/book/{movieId}/theater/{theaterId}', ['BookController', 'bookMovie']);
+
+    //    $r->addRoute('GET', '/users', 'get_all_users_handler');
 //    // {id} must be a number (\d+)
 //    $r->addRoute('GET', '/user/{id:\d+}', 'get_user_handler');
 //    // The /{title} suffix is optional
@@ -97,6 +109,11 @@ switch ($routeInfo[0]) {
                 $handler = $routeInfo[1][1];
                 $vars = $routeInfo[2];
                 require './controllers/CgvController.php';
+                break;
+            case 'BookController':
+                $handler = $routeInfo[1][1];
+                $vars = $routeInfo[2];
+                require './controllers/BookController.php';
                 break;
             /*case 'EventController':
                 $handler = $routeInfo[1][1]; $vars = $routeInfo[2];
