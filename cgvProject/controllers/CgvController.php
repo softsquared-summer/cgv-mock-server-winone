@@ -17,21 +17,29 @@ try {
              */
         case "movieList":
             http_response_code(200);
-            $res->result = movieList($_GET['best']);
+            $res->result = movieList($_GET['condition']);
             $res->isSuccess = TRUE;
             $res->code = 100;
             $res->message = "영화 조회 성공";
             echo json_encode($res, JSON_NUMERIC_CHECK);
             break;
-            break;
 
         /*
          * API No. 4 ('GET', '/movie/{movieId})
          * API Name : 영화상세조회 API
-         * 마지막 수정 날짜 : 20.02.20
+         * 마지막 수정 날짜 : 20.02.22
          */
         case "movie":
                 http_response_code(200);
+
+                if(!isMovie($vars["movieId"])){
+                $res->isSucces = FALSE;
+                $res->code = 203;
+                $res->message = "존재하지 않는 영화 ID입니다.";
+                echo json_encode($res, JSON_NUMERIC_CHECK);
+                return;
+                }
+
                 $res->result = movie($vars["movieId"]);
                 $res->isSuccess = TRUE;
                 $res->code = 100;

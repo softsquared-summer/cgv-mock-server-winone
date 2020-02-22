@@ -47,7 +47,7 @@ function movieList($queryString){
                                   ON a.id = c.movieId
                     WHERE movieStatus = 1";
     }
-    else if($queryString == "top"){
+    else if($queryString == "best"){
         $query = "SELECT a.id, a.title, a.viewAge, a.releaseDate, a.mainImg, ifnull(b.goldenEggRatio,0) AS goldenEggRatio, ifnull(c.ticketingRatio,0) AS ticketingRatio
                     FROM movies AS a
                     LEFT OUTER JOIN (
@@ -127,6 +127,7 @@ function movie($movieId){
     $query = "SELECT actorsName,actorsEnName 
                 FROM actors 
                WHERE movieId = ?;";
+
     $st = $pdo->prepare($query);
     $st->execute([$movieId]);
     $st->setFetchMode(PDO::FETCH_ASSOC);
