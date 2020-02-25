@@ -138,5 +138,60 @@ function compareCurTime($movieTimeId)
     return intval($res[0]["exist"]);
 }
 
+function bookAvailable($movieTimeId, $peopleCount){
+    $pdo = pdoSqlConnect();
+    $query = "SELECT EXISTS(
+                            SELECT *
+                              FROM ticketing t
+                              LEFT JOIN current_movies cm on cm.movieId = t.movieId AND cm.id = t.currentMoviesId
+                              LEFT JOIN theater th on th.theaterId = cm.theaterId AND th.roomId = cm.room
+                              WHERE cm.id = ? AND cm.seatCount >= ?) AS exist";
 
+    $st = $pdo->prepare($query);
+    $st->execute([$movieTimeId, $peopleCount]);
+    $st->setFetchMode(PDO::FETCH_ASSOC);
+    $res = $st->fetchAll();
 
+    $st = null;
+    $pdo = null;
+
+    return intval($res[0]["exist"]);
+}
+
+function isWatchedMovie($movieId, $userId){
+    $pdo = pdoSqlConnect();
+    $query = "SELECT EXISTS(
+                            SELECT *
+                              FROM ticketing t
+                              LEFT JOIN current_movies cm on cm.movieId = t.movieId AND cm.id = t.currentMoviesId
+                              LEFT JOIN theater th on th.theaterId = cm.theaterId AND th.roomId = cm.room
+                              WHERE cm.movieId = ? AND t.isWatched = 1 AND t.userId = ?) AS exist";
+
+    $st = $pdo->prepare($query);
+    $st->execute([$movieId, $userId]);
+    $st->setFetchMode(PDO::FETCH_ASSOC);
+    $res = $st->fetchAll();
+
+    $st = null;
+    $pdo = null;
+
+    return intval($res[0]["exist"]);
+}
+
+function isAlreadyWritten($movieId, $userId){
+    $pdo = pdoSqlConnect();
+    $query = "SELECT EXISTS(
+                            SELECT *
+                              FROM reviews
+                              WHERE movieId = ? AND userId = ?) AS exist";
+
+    $st = $pdo->prepare($query);
+    $st->execute([$movieId, $userId]);
+    $st->setFetchMode(PDO::FETCH_ASSOC);
+    $res = $st->fetchAll();
+
+    $st = null;
+    $pdo = null;
+
+    return intval($res[0]["exist"]);
+}

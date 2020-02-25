@@ -6,6 +6,7 @@ require './pdos/CgvPdo.php';
 require './pdos/ValidationPdo.php';
 require './pdos/encryptDBPdo.php';
 require './pdos/BookPdo.php';
+require './pdos/ReviewPdo.php';
 use \Monolog\Logger as Logger;
 use Monolog\Handler\StreamHandler;
 
@@ -13,7 +14,7 @@ date_default_timezone_set('Asia/Seoul');
 ini_set('default_charset', 'utf8mb4');
 
 //에러출력하게 하는 코드
-error_reporting(E_ALL); ini_set("display_errors", 1);
+//error_reporting(E_ALL); ini_set("display_errors", 1);
 
 //Main Server API
 $dispatcher = FastRoute\simpleDispatcher(function (FastRoute\RouteCollector $r) {
@@ -28,6 +29,8 @@ $dispatcher = FastRoute\simpleDispatcher(function (FastRoute\RouteCollector $r) 
     $r->addRoute('GET', '/jwt', ['MainController', 'validateJwt']);
     $r->addRoute('POST', '/jwt', ['MainController', 'createJwt']);
     $r->addRoute('POST', '/users', ['UserController', 'createUser']);
+    //$r->addRoute('GET', '/users/movie', ['UserController', 'watchedMovie']);  //   내가 본 영화 목록
+
 
     $r->addRoute('GET', '/movie', ['CgvController', 'movieList']);
     $r->addRoute('GET', '/movie/{movieId}', ['CgvController', 'movie']);
@@ -38,12 +41,14 @@ $dispatcher = FastRoute\simpleDispatcher(function (FastRoute\RouteCollector $r) 
     $r->addRoute('GET', '/book/{movieId}', ['BookController', 'checkTheater']); // API NO.8
     $r->addRoute('GET', '/book/{movieId}/theater/{theaterId}', ['BookController', 'checkBookMovie']); // API NO.9, theaterId 쿼리스트링으로
 
-    $r->addRoute('GET', '/ticket/{movieTimeId}', ['BookController', 'ticketInfo']);
-    // $r->addRoute('GET', '/book/{movieId}/theater/{theaterRoomId}', ['BookController', 'reCheckSeatNTime']);
-    /*body parameter
-    * 날짜 인원 관
-    *
-    */
+    $r->addRoute('GET', '/ticket/{movieTimeId}', ['BookController', 'ticketInfo']); // API NO.10
+    $r->addRoute('POST', '/ticket/{movieTimeId}', ['BookController', 'selectSeatNPeople']); // API NO.11
+
+    $r->addRoute('PATCH', '/past-time', ['BookController', 'pastTimeMovie']); // API NO.12 isWatched상태 업뎃
+
+    $r->addRoute('POST', '/review', ['ReviewController', 'reviewPost']); // API NO.13 영화 리뷰 등록 API
+    $r->addRoute('DELETE', '/review/{movieId}', ['ReviewController', 'reviewDelete']); // API NO.14 특정 영화 본인 리뷰 삭제 API
+    // $r->addRoute('GET', '/review/{movieId}', ['ReviewController', 'reviewMovie']); // API NO.15 특정영화조회 리뷰 API
     //$r->addRoute('POST', '/book/{movieId}/theater/{theaterId}', ['BookController', 'bookMovie']);
 
     //    $r->addRoute('GET', '/users', 'get_all_users_handler');
@@ -116,6 +121,11 @@ switch ($routeInfo[0]) {
                 $handler = $routeInfo[1][1];
                 $vars = $routeInfo[2];
                 require './controllers/BookController.php';
+                break;
+            case 'ReviewController':
+                $handler = $routeInfo[1][1];
+                $vars = $routeInfo[2];
+                require './controllers/ReviewController.php';
                 break;
             /*case 'EventController':
                 $handler = $routeInfo[1][1]; $vars = $routeInfo[2];

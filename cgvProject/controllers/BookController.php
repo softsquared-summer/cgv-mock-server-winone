@@ -79,32 +79,6 @@ try {
             echo json_encode($res, JSON_NUMERIC_CHECK);
             break;
 
-        /*case "ticketInfo":
-            http_response_code(200);
-
-            $movieTimeId = $vars["movieTimeId"];
-
-            if(!isMovieTime($movieTimeId)){
-                $res->isSucces = FALSE;
-                $res->code = 201;
-                $res->message = "존재하지 않는 영화 시간 번호입니다.";
-                echo json_encode($res, JSON_NUMERIC_CHECK);
-                return;
-            }
-
-            if(!compareCurDate($movieTimeId)){
-                $res->isSucces = FALSE;
-                $res->code = 201;
-                $res->message = "이미 예매 시간이 지난 영화입니다.";
-                echo json_encode($res, JSON_NUMERIC_CHECK);
-                return;
-            }
-            $res->result = ticketInfo($movieTimeId);
-            $res->isSuccess = TRUE;
-            $res->code = 100;
-            $res->message = "예매 전 안내 조회 성공";
-            echo json_encode($res, JSON_NUMERIC_CHECK);
-            break;*/
         case "ticketInfo":
             http_response_code(200);
 
@@ -150,6 +124,72 @@ try {
                     return;
                 }
             }
+            
+        case "selectSeatNPeople":
+            http_response_code(200);
+
+            $jwt = $_SERVER["HTTP_X_ACCESS_TOKEN"]; // jwt
+
+            if (!isValidHeader($jwt, JWT_SECRET_KEY)) {
+                $res->isSuccess = FALSE;
+                $res->code = 201;
+                $res->message = "유효하지 않은 토큰입니다.";
+                echo json_encode($res, JSON_NUMERIC_CHECK);
+                addErrorLogs($errorLogs, $res, $req);
+                return;
+            }
+
+            $userInfo = getDataByJWToken($jwt, JWT_SECRET_KEY);
+            $userId = $userInfo->userId;
+            if (!isUser($userId)) {
+                $res->isSuccess = FALSE;
+                $res->code = 202;
+                $res->message = "존재하지 않는 유저입니다.";
+                echo json_encode($res, JSON_NUMERIC_CHECK);
+                addErrorLogs($errorLogs, $res, $req);
+                return;
+            }
+
+            $countAdult = $req->countAdult;
+            $countStudent = $req->countStudent;
+            $countSpecial = $req->countSpecial;
+
+            $peopleCount = (int)$countAdult + (int)$countStudent + (int)$countSpecial;
+            $movieTimeId = $vars["movieTimeId"];
+
+            if(!isMovieTime($movieTimeId)){
+                $res->isSucces = FALSE;
+                $res->code = 203;
+                $res->message = "존재하지 않는 영화 시간 번호입니다.";
+                echo json_encode($res, JSON_NUMERIC_CHECK);
+                return;
+            }
+
+            if(!bookAvailable($peopleCount, $movieTimeId)){
+                $res->isSucces = FALSE;
+                $res->code = 204;
+                $res->message = "잔여 좌석이 부족합니다.";
+                echo json_encode($res, JSON_NUMERIC_CHECK);
+                return;
+            }
+
+            $res->result = selectSeatNPeople($userId, $peopleCount, $movieTimeId);
+            $res->isSuccess = TRUE;
+            $res->code = 100;
+            $res->message = "영화 예매 성공";
+            echo json_encode($res, JSON_NUMERIC_CHECK);
+            break;
+
+        case "pastTimeMovie":
+            http_response_code(200);
+
+            pastTimeMovie();
+            $res->isSuccess = TRUE;
+            $res->code = 100;
+            $res->message = "시간지난 영화 관람완료상태로 변경 성공";
+            echo json_encode($res, JSON_NUMERIC_CHECK);
+            break;
+
 
     }
 
