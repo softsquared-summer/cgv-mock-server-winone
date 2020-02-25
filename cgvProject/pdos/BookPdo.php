@@ -196,3 +196,67 @@ function ticketInfo($movieTimeId){
     return $res[0];
 }
 
+function selectSeatNPeople($userId, $peopleCount, $movieTimeId){
+    $pdo = pdoSqlConnect();
+
+    $query = "INSERT INTO ticketing (movieId, userId, peopleCount, currentMoviesId)
+              SELECT current_movies.movieId, ?, ?, ?
+                FROM current_movies
+               WHERE current_movies.id = ?";
+
+    $st = $pdo->prepare($query);
+    $st->execute([$userId, $peopleCount, $movieTimeId, $movieTimeId]);
+
+    $query = "UPDATE current_movies cm
+                LEFT JOIN ticketing t on cm.movieId = t.movieId AND cm.id = t.currentMoviesId
+                LEFT JOIN theater th on th.theaterId = cm.theaterId AND th.roomId = cm.room
+                 SET cm.seatCount = cm.seatCount - t.peopleCount
+               WHERE cm.id = ?";
+
+    $st = $pdo->prepare($query);
+    $st->execute([$movieTimeId]);
+
+    $query = "SELECT th.ticketPrice * t.peopleCount AS totalPrice
+                FROM ticketing t
+                LEFT JOIN current_movies cm on cm.movieId = t.movieId AND cm.id = t.currentMoviesId
+                LEFT JOIN theater th on th.theaterId = cm.theaterId AND th.roomId = cm.room
+               WHERE cm.id = ?";
+
+    $st = $pdo->prepare($query);
+    $st->execute([$movieTimeId]);
+    $st->setFetchMode(PDO::FETCH_ASSOC);
+    $res = $st->fetchAll();
+
+    $st = null;
+    $pdo = null;
+
+    return $res[0];
+}
+
+function pastTimeMovie()
+{
+
+    $pdo = pdoSqlConnect();
+
+    $query = "UPDATE ticketing t
+                LEFT JOIN current_movies cm on cm.movieId = t.movieId AND cm.id = t.currentMoviesId
+                LEFT JOIN theater th on th.theaterId = cm.theaterId AND th.roomId = cm.room
+                 SET t.isWatched = 1
+               WHERE t.isWatched = 0 AND cm.date < CURDATE()";
+
+    $st = $pdo->prepare($query);
+    $st->execute();
+
+    $query = "UPDATE ticketing t
+                LEFT JOIN current_movies cm on cm.movieId = t.movieId AND cm.id = t.currentMoviesId
+                LEFT JOIN theater th on th.theaterId = cm.theaterId AND th.roomId = cm.room
+                 SET t.isWatched = 1
+               WHERE t.isWatched = 0 AND cm.date = CURDATE() AND cm.endTime < CURTIME()";
+
+    $st = $pdo->prepare($query);
+    $st->execute();
+
+    $st = null;
+    $pdo = null;
+
+}
