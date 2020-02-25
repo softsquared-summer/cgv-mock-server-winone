@@ -11,7 +11,7 @@ try {
     switch ($handler) {
 
         /*
-         * API No. 7 ('GET', '/movie/{movieId})
+         * API No. 7 ('GET', '/book)
          * API Name : 영화상세조회 API
          * 마지막 수정 날짜 : 20.02.22
          */
@@ -26,12 +26,11 @@ try {
             break;
 
         /*
-         * API No. 8 ('GET', '/movie/{movieId})
+         * API No. 8 ('GET', '/book/{movieId})
          * API Name : 영화상세조회 API
-         * 마지막 수정 날짜 : 20.02.22
+         * 마지막 수정 날짜 : 20.02.23
          */
-
-        case "checkMovieTime":
+        case "checkTheater":
             http_response_code(200);
             $movieId = $vars["movieId"];
             $date = $_GET["date"];
@@ -44,13 +43,117 @@ try {
                 return;
             }
 
-            $res->result = checkMovieTime($movieId, $date);
+            $res->result = checkTheater($movieId, $date);
             $res->isSuccess = TRUE;
             $res->code = 100;
             $res->message = "영화 시간 조회성공";
             echo json_encode($res, JSON_NUMERIC_CHECK);
             break;
+
+        case "checkBookMovie":
+            http_response_code(200);
+            $movieId = $vars["movieId"];
+            $theaterId = $vars["theaterId"];
+            $date = $_GET["date"];
+
+            if(!isMovie($movieId)){
+                $res->isSucces = FALSE;
+                $res->code = 203;
+                $res->message = "존재하지 않는 영화입니다.";
+                echo json_encode($res, JSON_NUMERIC_CHECK);
+                return;
+            }
+
+            if(!isTheater($theaterId)){
+                $res->isSucces = FALSE;
+                $res->code = 204;
+                $res->message = "존재하지 않는 영화관입니다.";
+                echo json_encode($res, JSON_NUMERIC_CHECK);
+                return;
+            }
+
+            $res->result = checkBookMovie($movieId, $theaterId, $date);
+            $res->isSuccess = TRUE;
+            $res->code = 100;
+            $res->message = "영화 시간 조회성공";
+            echo json_encode($res, JSON_NUMERIC_CHECK);
+            break;
+
+        /*case "ticketInfo":
+            http_response_code(200);
+
+            $movieTimeId = $vars["movieTimeId"];
+
+            if(!isMovieTime($movieTimeId)){
+                $res->isSucces = FALSE;
+                $res->code = 201;
+                $res->message = "존재하지 않는 영화 시간 번호입니다.";
+                echo json_encode($res, JSON_NUMERIC_CHECK);
+                return;
+            }
+
+            if(!compareCurDate($movieTimeId)){
+                $res->isSucces = FALSE;
+                $res->code = 201;
+                $res->message = "이미 예매 시간이 지난 영화입니다.";
+                echo json_encode($res, JSON_NUMERIC_CHECK);
+                return;
+            }
+            $res->result = ticketInfo($movieTimeId);
+            $res->isSuccess = TRUE;
+            $res->code = 100;
+            $res->message = "예매 전 안내 조회 성공";
+            echo json_encode($res, JSON_NUMERIC_CHECK);
+            break;*/
+        case "ticketInfo":
+            http_response_code(200);
+
+            $movieTimeId = $vars["movieTimeId"];
+
+            if(!isMovieTime($movieTimeId)){
+                $res->isSucces = FALSE;
+                $res->code = 201;
+                $res->message = "존재하지 않는 영화 시간 번호입니다.";
+                echo json_encode($res, JSON_NUMERIC_CHECK);
+                return;
+            }
+
+            if(compareCurDate($movieTimeId)){
+                $res->result = ticketInfo($movieTimeId);
+                $res->isSuccess = TRUE;
+                $res->code = 100;
+                $res->message = "영화 예매 정보창 조회 성공";
+                echo json_encode($res, JSON_NUMERIC_CHECK);
+                break;
+            } else {
+                if(compareEqualDate($movieTimeId)){
+                    if(compareCurTime($movieTimeId)){
+                        $res->result = ticketInfo($movieTimeId);
+                        $res->isSuccess = TRUE;
+                        $res->code = 100;
+                        $res->message = "영화 예매 정보창 조회 성공";
+                        echo json_encode($res, JSON_NUMERIC_CHECK);
+                        break;
+                    }
+                    else {
+                        $res->isSucces = FALSE;
+                        $res->code = 201;
+                        $res->message = "이미 시간이 지난 영화입니다.";
+                        echo json_encode($res, JSON_NUMERIC_CHECK);
+                        return;
+                    }
+                } else{
+                    $res->isSucces = FALSE;
+                    $res->code = 201;
+                    $res->message = "이미 시간이 지난 영화입니다.";
+                    echo json_encode($res, JSON_NUMERIC_CHECK);
+                    return;
+                }
+            }
+
     }
+
+
 } catch (\Exception $e) {
     return getSQLErrorException($errorLogs, $e, $req);
 }

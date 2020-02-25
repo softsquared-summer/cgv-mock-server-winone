@@ -35,9 +35,11 @@ $dispatcher = FastRoute\simpleDispatcher(function (FastRoute\RouteCollector $r) 
     $r->addRoute('DELETE', '/movie/{movieId}', ['CgvController', 'movieDelete']); // API NO.6
 
     $r->addRoute('GET', '/book', ['BookController', 'selectMovie']); // API NO.7
-    $r->addRoute('GET', '/book/{movieId}', ['BookController', 'checkMovieTime']); // 기본이면 오늘날짜
-    //$r->addRoute('GET', '/book/{movieId}/theater', ['BookController', 'checkBookMovie']);
-    //$r->addRoute('GET', '/book/{movieId}/theater/{theaterId}/{theaterRoom}', ['BookController', 'reCheckSeatNTime']);
+    $r->addRoute('GET', '/book/{movieId}', ['BookController', 'checkTheater']); // API NO.8
+    $r->addRoute('GET', '/book/{movieId}/theater/{theaterId}', ['BookController', 'checkBookMovie']); // API NO.9, theaterId 쿼리스트링으로
+
+    $r->addRoute('GET', '/ticket/{movieTimeId}', ['BookController', 'ticketInfo']);
+    // $r->addRoute('GET', '/book/{movieId}/theater/{theaterRoomId}', ['BookController', 'reCheckSeatNTime']);
     /*body parameter
     * 날짜 인원 관
     *
