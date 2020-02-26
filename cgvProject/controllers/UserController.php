@@ -20,14 +20,14 @@ try {
             $pw = $req->pw;
             $email = $req->email;
             $userName = $req->userName;
-            $sexStatus = $req-> sexStatus;
-            $ageStatus = $req-> ageStatus;
+            $sex = $req-> sex;
+            $birth = $req-> birth;
 
             $validId = '/^[0-9a-z]{4,12}$/';
             $validPw = '/^(?=.*[a-zA-Z])(?=.*[0-9]).{6,16}$/';
             $validBirth = '/^(19[0-9][0-9]|20\d{2})(0[0-9]|1[0-2])(0[1-9]|[1-2][0-9]|3[0-1])$/';
 
-            if (empty($userId) || empty($pw) || empty($email) || empty($userName) || empty($sexStatus) || empty($ageStatus)) {
+            if (empty($userId) || empty($pw) || empty($email) || empty($userName) || empty($sex) || empty($birth)) {
                 $res->isSucces = FALSE;
                 $res->code = 200;
                 $res->message = "입력을 확인해주세요.";
@@ -59,7 +59,7 @@ try {
                     $res->message = "이메일 형식에 부합하지 않습니다.";
                     echo json_encode($res, JSON_NUMERIC_CHECK);
                     return;
-                } else if (!preg_match($validBirth, "$ageStatus")) {
+                } else if (!preg_match($validBirth, "$birth")) {
                     $res->isSucces = FALSE;
                     $res->code = 205;
                     $res->message = "생년월일 형식에 부합하지 않습니다.";
@@ -67,7 +67,7 @@ try {
                     return;
                 }
                 else {
-                    createUser($userId, $pw, $email, $userName, $sexStatus, $ageStatus);
+                    createUser($userId, $pw, $email, $userName, $sex, $birth);
                     $res->isSuccess = TRUE;
                     $res->code = 100;
                     $res->message = "회원가입 완료";

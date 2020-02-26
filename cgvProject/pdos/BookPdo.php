@@ -4,7 +4,7 @@
 function selectMovie(){
     $pdo = pdoSqlConnect();
 
-        $query = "SELECT a.id, a.title, a.mainImg
+        $query = "SELECT a.id, a.title, a.thumbnail
                     FROM movies AS a
                     LEFT OUTER JOIN (
                                      SELECT a.id AS movieId,TRUNCATE(c.ticketingCount/c.totalCount*100,1) AS ticketingRatio
@@ -33,10 +33,20 @@ function checkTheater($movieId, $date){
     $pdo = pdoSqlConnect();
 
     if(!$date){
-        $query = "SELECT title, cm.date, viewAge, runningTime, mainImg
+        $query = "SELECT title, viewAge, runningTime, thumbnail,
+                         date_format(cm.date, '%Y년 %m월 %d일') AS date,
+                    CASE DAYOFWEEK(cm.date)
+                    WHEN '1' THEN '일요일'
+                    WHEN '2' THEN '월요일'
+                    WHEN '3' THEN '화요일'
+                    WHEN '4' THEN '수요일'
+                    WHEN '5' THEN '목요일'
+                    WHEN '6' THEN '금요일'
+                    WHEN '7' THEN '토요일'
+                     END AS week
                     FROM movies
                     LEFT JOIN current_movies cm on movieId = movies.id
-                   GROUP BY title, cm.date, viewAge, runningTime, mainImg, movies.movieStatus, movies.id
+                   GROUP BY title, cm.date, viewAge, runningTime, thumbnail, movies.movieStatus, movies.id
                   HAVING movies.movieStatus = 1 and movies.id = ? and cm.date = CURDATE()";
 
         $st = $pdo->prepare($query);
@@ -44,10 +54,10 @@ function checkTheater($movieId, $date){
         $st->setFetchMode(PDO::FETCH_ASSOC);
         $res = $st->fetchAll();
 
-        $query = "SELECT theater.id AS theaterRoomId, theater.theaterId,theater.theaterName, theater.floor, cm.room
+        $query = "SELECT theater.id AS theaterRoomId, theater.theaterId,theater.theaterName, theater.floor, cm.roomId
                     FROM theater
-                    LEFT JOIN current_movies cm on theater.theaterId = cm.theaterId AND cm.room = theater.roomId
-                   GROUP BY theater.id, theater.theaterId, theater.theaterName, theater.floor, cm.room, cm.movieId, cm.date
+                    LEFT JOIN current_movies cm on theater.theaterId = cm.theaterId AND cm.roomId = theater.roomId
+                   GROUP BY theater.id, theater.theaterId, theater.theaterName, theater.floor, cm.roomId, cm.movieId, cm.date
                   HAVING cm.movieId = ? and cm.date = CURDATE()";
 
          $st = $pdo->prepare($query);
@@ -73,10 +83,20 @@ function checkTheater($movieId, $date){
 */
     }
     else {
-        $query = "SELECT title, cm.date, viewAge, runningTime, mainImg
+        $query = "SELECT title, viewAge, runningTime, thumbnail,
+                         date_format(cm.date, '%Y년 %m월 %d일') AS date,
+                    CASE DAYOFWEEK(cm.date)
+                    WHEN '1' THEN '일요일'
+                    WHEN '2' THEN '월요일'
+                    WHEN '3' THEN '화요일'
+                    WHEN '4' THEN '수요일'
+                    WHEN '5' THEN '목요일'
+                    WHEN '6' THEN '금요일'
+                    WHEN '7' THEN '토요일'
+                     END AS week
                     FROM movies
                     LEFT JOIN current_movies cm on movieId = movies.id
-                   GROUP BY title, cm.date, viewAge, runningTime, mainImg, movies.movieStatus, movies.id
+                   GROUP BY title, cm.date, viewAge, runningTime, thumbnail, movies.movieStatus, movies.id
                   HAVING movies.movieStatus = 1 and movies.id = ? and cm.date = ?";
 
         $st = $pdo->prepare($query);
@@ -84,10 +104,10 @@ function checkTheater($movieId, $date){
         $st->setFetchMode(PDO::FETCH_ASSOC);
         $res = $st->fetchAll();
 
-        $query = "SELECT theater.id AS theaterRoomId, theater.theaterId,theater.theaterName, theater.floor, cm.room
+        $query = "SELECT theater.id AS theaterRoomId, theater.theaterId,theater.theaterName, theater.floor, cm.roomId
                     FROM theater
-                    LEFT JOIN current_movies cm on theater.theaterId = cm.theaterId AND cm.room = theater.roomId
-                   GROUP BY theater.id, theater.theaterId, theater.theaterName, theater.floor, cm.room, cm.movieId, cm.date
+                    LEFT JOIN current_movies cm on theater.theaterId = cm.theaterId AND cm.roomId = theater.roomId
+                   GROUP BY theater.id, theater.theaterId, theater.theaterName, theater.floor, cm.roomId, cm.movieId, cm.date
                   HAVING cm.movieId = ? and cm.date = ?";
 
         $st = $pdo->prepare($query);
@@ -109,7 +129,7 @@ function checkBookMovie($movieId, $theaterId, $date){
         $query = "SELECT theater.theaterId,theater.theaterName, cm.date
                     FROM theater
                     LEFT JOIN current_movies cm on theater.theaterId = cm.theaterId
-                    GROUP BY theater.theaterId, theater.theaterName, theater.floor, cm.room, cm.movieId, cm.date
+                    GROUP BY theater.theaterId, theater.theaterName, theater.floor, cm.roomId, cm.movieId, cm.date
                   HAVING cm.movieId = ? and cm.date = CURDATE() and theaterId = ? LIMIT 1";
 
         $st = $pdo->prepare($query);
@@ -119,7 +139,7 @@ function checkBookMovie($movieId, $theaterId, $date){
 
         $query = "SELECT cm.id AS uniqueMovieTImeId, t.id as uniqueRoomId, cm.startTime, cm.endTime, cm.seatCount, t.totalSeat
                     FROM current_movies cm
-                    LEFT JOIN theater t ON cm.theaterId = t.theaterId AND cm.room = t.roomId
+                    LEFT JOIN theater t ON cm.theaterId = t.theaterId AND cm.roomId = t.roomId
                    GROUP BY t.id, cm.startTime, cm.endTime, t.totalSeat, cm.date, cm.movieId, cm.seatCount, t.theaterId, cm.id
                   HAVING cm.movieId = ? AND cm.date = CURDATE() AND t.theaterId = ?
                    ORDER BY t.id";
@@ -135,7 +155,7 @@ function checkBookMovie($movieId, $theaterId, $date){
         $query = "SELECT theater.theaterId,theater.theaterName, cm.date
                     FROM theater
                     LEFT JOIN current_movies cm on theater.theaterId = cm.theaterId
-                    GROUP BY theater.theaterId, theater.theaterName, theater.floor, cm.room, cm.movieId, cm.date
+                    GROUP BY theater.theaterId, theater.theaterName, theater.floor, cm.roomId, cm.movieId, cm.date
                   HAVING cm.movieId = ? and cm.date = ? and theaterId = ? LIMIT 1";
 
         $st = $pdo->prepare($query);
@@ -145,7 +165,7 @@ function checkBookMovie($movieId, $theaterId, $date){
 
         $query = "SELECT cm.id AS uniqueMovieTImeId, t.id as uniqueRoomId, cm.startTime, cm.endTime, cm.seatCount, t.totalSeat
                     FROM current_movies cm
-                    LEFT JOIN theater t ON cm.theaterId = t.theaterId AND cm.room = t.roomId
+                    LEFT JOIN theater t ON cm.theaterId = t.theaterId AND cm.roomId = t.roomId
                    GROUP BY t.id, cm.startTime, cm.endTime, t.totalSeat, cm.date, cm.movieId, cm.seatCount, t.theaterId, cm.id
                   HAVING cm.movieId = ? AND cm.date = ? AND t.theaterId = ?
                    ORDER BY t.id";
@@ -181,7 +201,7 @@ function ticketInfo($movieTimeId){
                        WHEN '7' THEN '토'
                        END AS week
                   FROM current_movies cm
-                  LEFT JOIN theater t ON cm.theaterId = t.theaterId AND cm.room = t.roomId
+                  LEFT JOIN theater t ON cm.theaterId = t.theaterId AND cm.roomId = t.roomId
                  GROUP BY cm.startTime, cm.endTime, t.totalSeat, cm.date, cm.movieId, cm.seatCount, t.theaterId, cm.id, t.theaterName, t.floor, t.roomId, t.totalSeat, cm.seatCount, t.description
                 HAVING cm.id = ?";
 
@@ -209,7 +229,7 @@ function selectSeatNPeople($userId, $peopleCount, $movieTimeId){
 
     $query = "UPDATE current_movies cm
                 LEFT JOIN ticketing t on cm.movieId = t.movieId AND cm.id = t.currentMoviesId
-                LEFT JOIN theater th on th.theaterId = cm.theaterId AND th.roomId = cm.room
+                LEFT JOIN theater th on th.theaterId = cm.theaterId AND th.roomId = cm.roomId
                  SET cm.seatCount = cm.seatCount - t.peopleCount
                WHERE cm.id = ?";
 
@@ -219,7 +239,7 @@ function selectSeatNPeople($userId, $peopleCount, $movieTimeId){
     $query = "SELECT th.ticketPrice * t.peopleCount AS totalPrice
                 FROM ticketing t
                 LEFT JOIN current_movies cm on cm.movieId = t.movieId AND cm.id = t.currentMoviesId
-                LEFT JOIN theater th on th.theaterId = cm.theaterId AND th.roomId = cm.room
+                LEFT JOIN theater th on th.theaterId = cm.theaterId AND th.roomId = cm.roomId
                WHERE cm.id = ?";
 
     $st = $pdo->prepare($query);
@@ -240,7 +260,7 @@ function pastTimeMovie()
 
     $query = "UPDATE ticketing t
                 LEFT JOIN current_movies cm on cm.movieId = t.movieId AND cm.id = t.currentMoviesId
-                LEFT JOIN theater th on th.theaterId = cm.theaterId AND th.roomId = cm.room
+                LEFT JOIN theater th on th.theaterId = cm.theaterId AND th.roomId = cm.roomId
                  SET t.isWatched = 1
                WHERE t.isWatched = 0 AND cm.date < CURDATE()";
 
@@ -249,7 +269,7 @@ function pastTimeMovie()
 
     $query = "UPDATE ticketing t
                 LEFT JOIN current_movies cm on cm.movieId = t.movieId AND cm.id = t.currentMoviesId
-                LEFT JOIN theater th on th.theaterId = cm.theaterId AND th.roomId = cm.room
+                LEFT JOIN theater th on th.theaterId = cm.theaterId AND th.roomId = cm.roomId
                  SET t.isWatched = 1
                WHERE t.isWatched = 0 AND cm.date = CURDATE() AND cm.endTime < CURTIME()";
 

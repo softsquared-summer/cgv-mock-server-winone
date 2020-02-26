@@ -110,7 +110,17 @@ try {
             echo json_encode($res, JSON_NUMERIC_CHECK);
             break;
 
+        case "reviewMovie":
+            http_response_code(200);
+            $movieId = $vars["movieId"];
+            $queryString = $_GET['sort'];
+            $res->result = reviewMovie($movieId, $queryString);
 
+            $res->isSuccess = TRUE;
+            $res->code = 100;
+            $res->message = "영화 리뷰 조회 성공";
+            echo json_encode($res, JSON_NUMERIC_CHECK);
+            break;
     }
 
 

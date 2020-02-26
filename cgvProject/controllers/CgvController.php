@@ -74,7 +74,7 @@ try {
                 echo json_encode($res, JSON_NUMERIC_CHECK);
                 return;
             }
-            moviePost($req->title,$req->titleEn,$req->genre, $req->specialStatus,$req->description, $req->director, $req->runningTime, $req->mainImg,$req->subImg, $req->movieStatus, $req->viewAge, $req-> video, $req->releaseDate,$req->actors);
+            moviePost($req->title,$req->titleEn,$req->genre, $req->movieType,$req->description, $req->director, $req->directorImg, $req->runningTime, $req->thumbnail,$req->subImg, $req->movieStatus, $req->viewAge, $req-> video, $req->releaseDate,$req->actors);
             $res->isSuccess = TRUE;
             $res->code = 100;
             $res->message = "영화 등록 성공";
@@ -122,6 +122,24 @@ try {
             $res->isSuccess = TRUE;
             $res->code = 100;
             $res->message = "영화 삭제 성공";
+            echo json_encode($res, JSON_NUMERIC_CHECK);
+            break;
+
+        case "movieDetail":
+            http_response_code(200);
+
+            if(!isMovie($vars["movieId"])){
+                $res->isSucces = FALSE;
+                $res->code = 203;
+                $res->message = "존재하지 않는 영화 ID입니다.";
+                echo json_encode($res, JSON_NUMERIC_CHECK);
+                return;
+            }
+
+            $res->result = movieDetail($vars["movieId"]);
+            $res->isSuccess = TRUE;
+            $res->code = 100;
+            $res->message = "영화 관련소식 조회 성공";
             echo json_encode($res, JSON_NUMERIC_CHECK);
             break;
         }

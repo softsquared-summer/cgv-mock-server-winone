@@ -144,7 +144,7 @@ function bookAvailable($movieTimeId, $peopleCount){
                             SELECT *
                               FROM ticketing t
                               LEFT JOIN current_movies cm on cm.movieId = t.movieId AND cm.id = t.currentMoviesId
-                              LEFT JOIN theater th on th.theaterId = cm.theaterId AND th.roomId = cm.room
+                              LEFT JOIN theater th on th.theaterId = cm.theaterId AND th.roomId = cm.roomId
                               WHERE cm.id = ? AND cm.seatCount >= ?) AS exist";
 
     $st = $pdo->prepare($query);
@@ -164,7 +164,7 @@ function isWatchedMovie($movieId, $userId){
                             SELECT *
                               FROM ticketing t
                               LEFT JOIN current_movies cm on cm.movieId = t.movieId AND cm.id = t.currentMoviesId
-                              LEFT JOIN theater th on th.theaterId = cm.theaterId AND th.roomId = cm.room
+                              LEFT JOIN theater th on th.theaterId = cm.theaterId AND th.roomId = cm.roomId
                               WHERE cm.movieId = ? AND t.isWatched = 1 AND t.userId = ?) AS exist";
 
     $st = $pdo->prepare($query);
@@ -195,3 +195,15 @@ function isAlreadyWritten($movieId, $userId){
 
     return intval($res[0]["exist"]);
 }
+
+function passingTime($datetime) {
+
+    $time_lag = time() - strtotime($datetime);
+    if($time_lag < 30000) {
+        $posting_time = "방금전";
+    } else {
+        $posting_time = date("m-", strtotime($datetime));
+    }
+    return $posting_time;
+}
+

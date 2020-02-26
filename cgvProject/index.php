@@ -36,7 +36,8 @@ $dispatcher = FastRoute\simpleDispatcher(function (FastRoute\RouteCollector $r) 
     $r->addRoute('GET', '/movie/{movieId}', ['CgvController', 'movie']);
     $r->addRoute('POST', '/movie', ['CgvController', 'moviePost']);
     $r->addRoute('DELETE', '/movie/{movieId}', ['CgvController', 'movieDelete']); // API NO.6
-
+    $r->addRoute('GET', '/movie/{movieId}/detail', ['CgvController', 'movieDetail']); // API NO.16 관련 소식 비율
+    
     $r->addRoute('GET', '/book', ['BookController', 'selectMovie']); // API NO.7
     $r->addRoute('GET', '/book/{movieId}', ['BookController', 'checkTheater']); // API NO.8
     $r->addRoute('GET', '/book/{movieId}/theater/{theaterId}', ['BookController', 'checkBookMovie']); // API NO.9, theaterId 쿼리스트링으로
@@ -48,7 +49,9 @@ $dispatcher = FastRoute\simpleDispatcher(function (FastRoute\RouteCollector $r) 
 
     $r->addRoute('POST', '/review', ['ReviewController', 'reviewPost']); // API NO.13 영화 리뷰 등록 API
     $r->addRoute('DELETE', '/review/{movieId}', ['ReviewController', 'reviewDelete']); // API NO.14 특정 영화 본인 리뷰 삭제 API
-    // $r->addRoute('GET', '/review/{movieId}', ['ReviewController', 'reviewMovie']); // API NO.15 특정영화조회 리뷰 API
+    $r->addRoute('GET', '/review/{movieId}', ['ReviewController', 'reviewMovie']); // API NO.15 특정영화조회 리뷰 API
+
+
     //$r->addRoute('POST', '/book/{movieId}/theater/{theaterId}', ['BookController', 'bookMovie']);
 
     //    $r->addRoute('GET', '/users', 'get_all_users_handler');
