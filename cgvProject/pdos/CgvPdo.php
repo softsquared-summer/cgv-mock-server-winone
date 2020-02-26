@@ -1,12 +1,13 @@
 <?php
 /*API NO.2*/
-function createUser($userId, $pw, $email, $userName, $sexStatus, $ageStatus)
+function createUser($userId, $pw, $email, $userName, $sex, $birth)
 {
     $pdo = pdoSqlConnect();
-    $query = "INSERT INTO users (userId, pw, email, userName, sexStatus, ageStatus) VALUES (?, ?, ?, ?, ?, ?);";
+    //$hash  = password_hash($pw, PASSWORD_DEFAULT);
+    $query = "INSERT INTO users (userId, pw, email, userName, sex, birth) VALUES (?, ?, ?, ?, ?, ?);";
 
     $st = $pdo->prepare($query);
-    $st->execute([$userId, $pw, $email, $userName, $sexStatus, $ageStatus]);
+    $st->execute([$userId, $pw, $email, $userName, $sex, $birth]);
     $st = null;
     $pdo = null;
 
@@ -18,7 +19,7 @@ function movieList($queryString){
     $query = "";
 
     if(!$queryString){
-        $query = "SELECT a.id, a.title, a.viewAge, a.releaseDate, a.mainImg, ifnull(b.goldenEggRatio,0) AS goldenEggRatio, ifnull(c.ticketingRatio,0) AS ticketingRatio
+        $query = "SELECT a.id, a.title, a.viewAge, a.releaseDate, a.thumbnail, ifnull(b.goldenEggRatio,0) AS goldenEggRatio, ifnull(c.ticketingRatio,0) AS ticketingRatio
                     FROM movies AS a
                     LEFT OUTER JOIN (
                                     SELECT b.movieId AS movieId, TRUNCATE((b.count/c.count*100),0) AS goldenEggRatio
@@ -48,7 +49,7 @@ function movieList($queryString){
                     WHERE movieStatus = 1";
     }
     else if($queryString == "best"){
-        $query = "SELECT a.id, a.title, a.viewAge, a.releaseDate, a.mainImg, ifnull(b.goldenEggRatio,0) AS goldenEggRatio, ifnull(c.ticketingRatio,0) AS ticketingRatio
+        $query = "SELECT a.id, a.title, a.viewAge, a.releaseDate, a.thumbnail, ifnull(b.goldenEggRatio,0) AS goldenEggRatio, ifnull(c.ticketingRatio,0) AS ticketingRatio
                     FROM movies AS a
                     LEFT OUTER JOIN (
                                      SELECT b.movieId AS movieId, TRUNCATE((b.count/c.count*100),0) AS goldenEggRatio
@@ -90,7 +91,7 @@ function movieList($queryString){
 function movie($movieId){
 
     $pdo = pdoSqlConnect();
-    $query = "SELECT a.title,a.titleEn, a.viewAge, a.releaseDate, a.runningTime, a.director, a.description, a.genre, a.mainImg, a.subImg, a.video, ifnull(b.goldenEggRatio,0) AS goldenEggRatio, ifnull(c.ticketingRatio,0) AS ticketingRatio
+    $query = "SELECT a.title,a.titleEn, a.viewAge, date_format(a.releaseDate, '%Y.%m.%d 개봉') AS date, a.runningTime, a.director, a.directorImg, a.description, a.genre, a.thumbnail, a.subImg, a.video, ifnull(b.goldenEggRatio,0) AS goldenEggRatio, ifnull(c.ticketingRatio,0) AS ticketingRatio
                 FROM movies AS a
                 LEFT OUTER JOIN (
                                 SELECT b.movieId AS movieId, TRUNCATE((b.count/c.count*100),0) AS goldenEggRatio
@@ -124,7 +125,7 @@ function movie($movieId){
     $st->setFetchMode(PDO::FETCH_ASSOC);
     $res = $st->fetchAll();
 
-    $query = "SELECT actorsName,actorsEnName 
+    $query = "SELECT actorsName,actorsEnName,actorsImg
                 FROM actors 
                WHERE movieId = ?;";
 
@@ -141,18 +142,18 @@ function movie($movieId){
     return $res[0];
 }
 /*API NO.5*/
-function moviePost($title,$titleEn,$genre, $specialStatus,$description, $director, $runningTime, $mainImg,$subImg, $movieStatus, $viewAge, $video, $releaseDate,$actors)
+function moviePost($title,$titleEn,$genre, $movieType,$description, $director, $directorImg, $runningTime, $thumbnail,$subImg, $movieStatus, $viewAge, $video, $releaseDate,$actors)
 {
 
     $pdo = pdoSqlConnect();
 
 
 
-    $query = "INSERT INTO movies (title, titleEn, genre, specialStatus, description, director, runningTime, mainImg, subImg, movieStatus, viewAge, video, releaseDate) 
-                   VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?);";
+    $query = "INSERT INTO movies (title, titleEn, genre, movieType, description, director, directorImg, runningTime, thumbnail, subImg, movieStatus, viewAge, video, releaseDate) 
+                   VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?);";
 
     $st = $pdo->prepare($query);
-    $st->execute([$title,$titleEn,$genre, $specialStatus,$description, $director, $runningTime, $mainImg,$subImg, $movieStatus, $viewAge, $video, $releaseDate]);
+    $st->execute([$title,$titleEn,$genre, $movieType,$description, $director, $directorImg, $runningTime, $thumbnail,$subImg, $movieStatus, $viewAge, $video, $releaseDate]);
 
     //getMaxId
 
@@ -166,10 +167,10 @@ function moviePost($title,$titleEn,$genre, $specialStatus,$description, $directo
     $movieId = $res[0]["maxId"];
 
     for($i=0; $i<count($actors); $i++) {
-        $actorsQuery = "INSERT INTO actors (movieId,actorsName,actorsEnName) 
-                           VALUES (?,?,?);";
+        $actorsQuery = "INSERT INTO actors (movieId,actorsName,actorsEnName,actorsImg) 
+                           VALUES (?,?,?,?);";
         $castSt = $pdo->prepare($actorsQuery);
-        $castSt->execute([$movieId, $actors[$i]->actorsName, $actors[$i]->actorsEnName]);
+        $castSt->execute([$movieId, $actors[$i]->actorsName, $actors[$i]->actorsEnName, $actors[$i]->actorsImg]);
     }
     $st = null;
     $pdo = null;
@@ -193,4 +194,48 @@ function movieDelete($movieId)
     $st = null;
     $pdo = null;
 
+}
+
+function movieDetail($movieId){
+
+    $pdo = pdoSqlConnect();
+    $query = "SELECT SUBSTRING(year(now()) - year(u.birth), 1,1) AS age, count(*) as count, t.movieId
+               FROM ticketing t
+               LEFT JOIN users u on t.userId = u.userId
+              GROUP BY age, t.movieId
+             HAVING t.movieId = ?";
+
+    $st = $pdo->prepare($query);
+    $st->execute([$movieId]);
+
+
+    $st->setFetchMode(PDO::FETCH_ASSOC);
+    $res = $st->fetchAll();
+
+    $sum = 0;
+    for($i = 0; $i < count($res); $i++){
+        $sum += $res[$i]["count"];
+    }
+    for($i = 0; $i < 5; $i++){
+        if($res[$i]["age"] == 1){
+            $res[$i]["count"] = round((int)$res[$i]["count"] / $sum * 100);
+        }
+        else if($res[$i]["age"] == 2){
+            $res[$i]["count"] = round((int)$res[$i]["count"] / $sum * 100);
+        }
+        else if($res[$i]["age"] == 3){
+            $res[$i]["count"] = round((int)$res[$i]["count"] / $sum * 100);
+        }
+        else if($res[$i]["age"] == 4){
+            $res[$i]["count"] = round((int)$res[$i]["count"] / $sum * 100);
+        }
+        else {
+            $res[$i]["count"] = round((int)$res[4]["count"] / $sum * 100);
+        }
+
+     }
+    $st = null;
+    $pdo = null;
+    return $res;
+    // return $res[0];
 }

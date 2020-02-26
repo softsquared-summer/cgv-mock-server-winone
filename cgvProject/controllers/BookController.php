@@ -153,7 +153,9 @@ try {
             $countAdult = $req->countAdult;
             $countStudent = $req->countStudent;
             $countSpecial = $req->countSpecial;
-
+            if(!$countAdult) $countAdult = 0;
+            if(!$countStudent) $countStudent = 0;
+            if($countSpecial) $countSpecial = 0;
             $peopleCount = (int)$countAdult + (int)$countStudent + (int)$countSpecial;
             $movieTimeId = $vars["movieTimeId"];
 
@@ -165,20 +167,52 @@ try {
                 return;
             }
 
-            if(!bookAvailable($peopleCount, $movieTimeId)){
-                $res->isSucces = FALSE;
-                $res->code = 204;
-                $res->message = "잔여 좌석이 부족합니다.";
+            if(compareCurDate($movieTimeId)){
+                if(bookAvailable($peopleCount, $movieTimeId)){
+                    $res->isSucces = FALSE;
+                    $res->code = 204;
+                    $res->message = "잔여 좌석이 부족합니다.";
+                    echo json_encode($res, JSON_NUMERIC_CHECK);
+                    return;
+                }
+                $res->result = selectSeatNPeople($userId, $peopleCount, $movieTimeId);
+                $res->isSuccess = TRUE;
+                $res->code = 100;
+                $res->message = "영화 예매 성공";
                 echo json_encode($res, JSON_NUMERIC_CHECK);
-                return;
+                break;
+            } else {
+                if(compareEqualDate($movieTimeId)){
+                    if(compareCurTime($movieTimeId)){
+                        if(bookAvailable($peopleCount, $movieTimeId)){
+                            $res->isSucces = FALSE;
+                            $res->code = 204;
+                            $res->message = "잔여 좌석이 부족합니다.";
+                            echo json_encode($res, JSON_NUMERIC_CHECK);
+                            return;
+                        }
+                        $res->result = selectSeatNPeople($userId, $peopleCount, $movieTimeId);
+                        $res->isSuccess = TRUE;
+                        $res->code = 100;
+                        $res->message = "영화 예매 성공";
+                        echo json_encode($res, JSON_NUMERIC_CHECK);
+                        break;
+                    }
+                    else {
+                        $res->isSucces = FALSE;
+                        $res->code = 201;
+                        $res->message = "이미 시간이 지난 영화입니다.";
+                        echo json_encode($res, JSON_NUMERIC_CHECK);
+                        return;
+                    }
+                } else{
+                    $res->isSucces = FALSE;
+                    $res->code = 201;
+                    $res->message = "이미 시간이 지난 영화입니다.";
+                    echo json_encode($res, JSON_NUMERIC_CHECK);
+                    return;
+                }
             }
-
-            $res->result = selectSeatNPeople($userId, $peopleCount, $movieTimeId);
-            $res->isSuccess = TRUE;
-            $res->code = 100;
-            $res->message = "영화 예매 성공";
-            echo json_encode($res, JSON_NUMERIC_CHECK);
-            break;
 
         case "pastTimeMovie":
             http_response_code(200);
