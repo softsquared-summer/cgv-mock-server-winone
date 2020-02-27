@@ -67,7 +67,8 @@ try {
                     return;
                 }
                 else {
-                    createUser($userId, $pw, $email, $userName, $sex, $birth);
+                    $encryptedPw = password_hash($pw, PASSWORD_DEFAULT);
+                    createUser($userId, $encryptedPw, $email, $userName, $sex, $birth);
                     $res->isSuccess = TRUE;
                     $res->code = 100;
                     $res->message = "회원가입 완료";

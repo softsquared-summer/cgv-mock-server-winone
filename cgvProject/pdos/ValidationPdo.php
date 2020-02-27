@@ -207,3 +207,41 @@ function passingTime($datetime) {
     return $posting_time;
 }
 
+function encryptedPwCheck($userId){
+    $pdo = pdoSqlConnect();
+    $query = "SELECT pw 
+                FROM users 
+               WHERE userId=?;";
+
+    $st = $pdo->prepare($query);
+    //    $st->execute([$param,$param]);
+    $st->execute([$userId]);
+    $st->setFetchMode(PDO::FETCH_ASSOC);
+    $res = $st->fetchAll();
+
+    $st=null;
+    $pdo = null;
+
+    return $res[0];
+
+}
+
+/*좋아요 이미 했는지 체크*/
+function isAlreadyLiked($userId, $movieId)
+{
+    $pdo = pdoSqlConnect();
+    $query = "SELECT EXISTS(
+                            SELECT * 
+                              FROM likes 
+                             WHERE usdrId= ? AND movieId = ?) AS exist;";
+
+    $st = $pdo->prepare($query);
+    $st->execute([$userId, $movieId]);
+    $st->setFetchMode(PDO::FETCH_ASSOC);
+    $res = $st->fetchAll();
+
+    $st = null;
+    $pdo = null;
+
+    return intval($res[0]["exist"]);
+}

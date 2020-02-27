@@ -196,46 +196,90 @@ function movieDelete($movieId)
 
 }
 
-function movieDetail($movieId){
+/*API NO.16*/
+function movieDetail($movieId, $queryString){
 
     $pdo = pdoSqlConnect();
-    $query = "SELECT SUBSTRING(year(now()) - year(u.birth), 1,1) AS age, count(*) as count, t.movieId
+
+    if($queryString == "sexRatio"){
+        $query = "SELECT s.movieId, s.totalCount, s.maleRatio, s.femaleRatio
+                    FROM (
+                          SELECT m.movieId, TRUNCATE(m.count/(m.count + f.count) *100,0) AS maleRatio,
+                                            TRUNCATE(f.count/(m.count + f.count) * 100,0) AS femaleRatio, 
+                                            m.count + f.count AS totalCount
+                            FROM (
+                                  SELECT movieId, count(*) AS count
+                                    FROM (
+                                           SELECT t.movieId, u.userId, u.sex
+                                             FROM users u
+                                             JOIN ticketing t on t.userId = u.userId
+                                            WHERE u.sex = 1
+                                         ) AS t
+                                   GROUP BY t.movieId
+                                  ) AS m
+                 LEFT OUTER JOIN (
+                                  SELECT movieId, count(*) AS count
+                                    FROM (
+                                          SELECT t.movieId, u.userId, u.sex
+                                            FROM users u
+                                            JOIN ticketing t on t.userId = u.userId
+                                   WHERE u.sex = 2
+                                         ) AS t
+                                   GROUP BY t.movieId
+                                  ) AS f on m.movieId = f.movieId
+                           ) AS s
+                     WHERE s.movieId = ?";
+
+        $st = $pdo->prepare($query);
+        $st->execute([$movieId]);
+
+        $st->setFetchMode(PDO::FETCH_ASSOC);
+        $res = $st->fetchAll();
+
+        $st = null;
+        $pdo = null;
+        return $res[0];
+    }
+    else{
+        $query = "SELECT SUBSTRING(year(now()) - year(u.birth), 1,1) AS age, count(*) as count, t.movieId
                FROM ticketing t
                LEFT JOIN users u on t.userId = u.userId
               GROUP BY age, t.movieId
              HAVING t.movieId = ?";
 
-    $st = $pdo->prepare($query);
-    $st->execute([$movieId]);
+        $st = $pdo->prepare($query);
+        $st->execute([$movieId]);
 
 
-    $st->setFetchMode(PDO::FETCH_ASSOC);
-    $res = $st->fetchAll();
+        $st->setFetchMode(PDO::FETCH_ASSOC);
+        $res = $st->fetchAll();
 
-    $sum = 0;
-    for($i = 0; $i < count($res); $i++){
-        $sum += $res[$i]["count"];
+        $sum = 0;
+        for($i = 0; $i < count($res); $i++){
+            $sum += $res[$i]["count"];
+        }
+        for($i = 0; $i < 5; $i++){
+            if($res[$i]["age"] == 1){
+                $res[$i]["count"] = round((int)$res[$i]["count"] / $sum * 100);
+            }
+            else if($res[$i]["age"] == 2){
+                $res[$i]["count"] = round((int)$res[$i]["count"] / $sum * 100);
+            }
+            else if($res[$i]["age"] == 3){
+                $res[$i]["count"] = round((int)$res[$i]["count"] / $sum * 100);
+            }
+            else if($res[$i]["age"] == 4){
+                $res[$i]["count"] = round((int)$res[$i]["count"] / $sum * 100);
+            }
+            else {
+                $res[$i]["count"] = round((int)$res[4]["count"] / $sum * 100);
+            }
+
+        }
+        $st = null;
+        $pdo = null;
+        return $res;
     }
-    for($i = 0; $i < 5; $i++){
-        if($res[$i]["age"] == 1){
-            $res[$i]["count"] = round((int)$res[$i]["count"] / $sum * 100);
-        }
-        else if($res[$i]["age"] == 2){
-            $res[$i]["count"] = round((int)$res[$i]["count"] / $sum * 100);
-        }
-        else if($res[$i]["age"] == 3){
-            $res[$i]["count"] = round((int)$res[$i]["count"] / $sum * 100);
-        }
-        else if($res[$i]["age"] == 4){
-            $res[$i]["count"] = round((int)$res[$i]["count"] / $sum * 100);
-        }
-        else {
-            $res[$i]["count"] = round((int)$res[4]["count"] / $sum * 100);
-        }
 
-     }
-    $st = null;
-    $pdo = null;
-    return $res;
     // return $res[0];
 }
