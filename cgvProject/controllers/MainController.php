@@ -43,8 +43,20 @@ try {
         case "createJwt":
             // jwt 유효성 검사
             http_response_code(200);
-
-            if(!isValidUser($req->userId, $req->pw)){
+            $isAuthentic = false;
+            $userId = $req->userId;
+            $encryptedPw = encryptedPwCheck($userId);
+            IF(password_verify($req->pw, $encryptedPw["pw"])){
+                $isAuthentic = true;
+            }
+            /*if(!isValidUser($req->userId, $req->pw)){
+                $res->isSuccess = FALSE;
+                $res->code = 200;
+                $res->message = "아이디 또는 비밀번호를 확인해주세요";
+                echo json_encode($res, JSON_NUMERIC_CHECK);
+                return;
+            }*/
+            if(!$isAuthentic){
                 $res->isSuccess = FALSE;
                 $res->code = 200;
                 $res->message = "아이디 또는 비밀번호를 확인해주세요";
@@ -53,7 +65,7 @@ try {
             }
 
             //페이로드에 맞게 다시 설정 요함
-            $jwt = getJWToken($req->userId, $req->pw, JWT_SECRET_KEY);
+            $jwt = getJWToken($req->userId, $encryptedPw["pw"], JWT_SECRET_KEY);
             $res->result["jwt"] = $jwt;
             $res->isSuccess = TRUE;
             $res->code = 100;

@@ -67,7 +67,7 @@ try {
             $userInfo = getDataByJWToken($jwt, JWT_SECRET_KEY);
             $userId = $userInfo->userId;
             $pw = $userInfo->pw;
-            if(($userId != "master123") || ($pw != "softsquared123")){
+            if($userId != "master123"){
                 $res->isSucces = FALSE;
                 $res->code = 202;
                 $res->message = "관리자가 아닙니다.";
@@ -101,7 +101,7 @@ try {
             $userId = $userInfo->userId;
             $pw = $userInfo->pw;
 
-            if(($userId != "master123") || ($pw != "softsquared123")){
+            if($userId != "master123"){
                 $res->isSucces = FALSE;
                 $res->code = 202;
                 $res->message = "관리자가 아닙니다.";
@@ -128,6 +128,7 @@ try {
         case "movieDetail":
             http_response_code(200);
 
+            $queryString = $_GET["condition"];
             if(!isMovie($vars["movieId"])){
                 $res->isSucces = FALSE;
                 $res->code = 203;
@@ -136,7 +137,7 @@ try {
                 return;
             }
 
-            $res->result = movieDetail($vars["movieId"]);
+            $res->result = movieDetail($vars["movieId"], $queryString);
             $res->isSuccess = TRUE;
             $res->code = 100;
             $res->message = "영화 관련소식 조회 성공";

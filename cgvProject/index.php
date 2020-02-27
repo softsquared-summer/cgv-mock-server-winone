@@ -7,6 +7,7 @@ require './pdos/ValidationPdo.php';
 require './pdos/encryptDBPdo.php';
 require './pdos/BookPdo.php';
 require './pdos/ReviewPdo.php';
+require './pdos/LikePdo.php';
 use \Monolog\Logger as Logger;
 use Monolog\Handler\StreamHandler;
 
@@ -14,7 +15,7 @@ date_default_timezone_set('Asia/Seoul');
 ini_set('default_charset', 'utf8mb4');
 
 //에러출력하게 하는 코드
-//error_reporting(E_ALL); ini_set("display_errors", 1);
+error_reporting(E_ALL); ini_set("display_errors", 1);
 
 //Main Server API
 $dispatcher = FastRoute\simpleDispatcher(function (FastRoute\RouteCollector $r) {
@@ -37,7 +38,9 @@ $dispatcher = FastRoute\simpleDispatcher(function (FastRoute\RouteCollector $r) 
     $r->addRoute('POST', '/movie', ['CgvController', 'moviePost']);
     $r->addRoute('DELETE', '/movie/{movieId}', ['CgvController', 'movieDelete']); // API NO.6
     $r->addRoute('GET', '/movie/{movieId}/detail', ['CgvController', 'movieDetail']); // API NO.16 관련 소식 비율
-    
+
+    $r->addRoute('POST', '/movie/{movieId}/liked', ['LikeController', 'likePost']);
+
     $r->addRoute('GET', '/book', ['BookController', 'selectMovie']); // API NO.7
     $r->addRoute('GET', '/book/{movieId}', ['BookController', 'checkTheater']); // API NO.8
     $r->addRoute('GET', '/book/{movieId}/theater/{theaterId}', ['BookController', 'checkBookMovie']); // API NO.9, theaterId 쿼리스트링으로
@@ -50,6 +53,7 @@ $dispatcher = FastRoute\simpleDispatcher(function (FastRoute\RouteCollector $r) 
     $r->addRoute('POST', '/review', ['ReviewController', 'reviewPost']); // API NO.13 영화 리뷰 등록 API
     $r->addRoute('DELETE', '/review/{movieId}', ['ReviewController', 'reviewDelete']); // API NO.14 특정 영화 본인 리뷰 삭제 API
     $r->addRoute('GET', '/review/{movieId}', ['ReviewController', 'reviewMovie']); // API NO.15 특정영화조회 리뷰 API
+
 
 
     //$r->addRoute('POST', '/book/{movieId}/theater/{theaterId}', ['BookController', 'bookMovie']);
@@ -129,6 +133,11 @@ switch ($routeInfo[0]) {
                 $handler = $routeInfo[1][1];
                 $vars = $routeInfo[2];
                 require './controllers/ReviewController.php';
+                break;
+            case 'LikeController':
+                $handler = $routeInfo[1][1];
+                $vars = $routeInfo[2];
+                require './controllers/LikeController.php';
                 break;
             /*case 'EventController':
                 $handler = $routeInfo[1][1]; $vars = $routeInfo[2];
