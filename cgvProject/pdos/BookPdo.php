@@ -240,7 +240,8 @@ function selectSeatNPeople($userId, $peopleCount, $movieTimeId){
                 FROM ticketing t
                 LEFT JOIN current_movies cm on cm.movieId = t.movieId AND cm.id = t.currentMoviesId
                 LEFT JOIN theater th on th.theaterId = cm.theaterId AND th.roomId = cm.roomId
-               WHERE cm.id = ?";
+               WHERE cm.id = ? 
+               ORDER BY t.createdAt DESC LIMIT 1";
 
     $st = $pdo->prepare($query);
     $st->execute([$movieTimeId]);

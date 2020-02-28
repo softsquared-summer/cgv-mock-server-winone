@@ -25,15 +25,60 @@ try {
 
             $userInfo = getDataByJWToken($jwt, JWT_SECRET_KEY);
             $userId = $userInfo->userId;
-
             $movieId = $vars["movieId"];
+
+            if(!isMovie($movieId)){
+                $res->isSucces = FALSE;
+                $res->code = 203;
+                $res->message = "존재하지 않는 영화 ID입니다.";
+                echo json_encode($res, JSON_NUMERIC_CHECK);
+                return;
+            }
+
+            if(isAlreadyLiked($userId, $movieId)){
+                if(likedState($userId, $movieId)){
+                    updateLikedStatus($userId, $movieId);
+                    $res->isSuccess = TRUE;
+                    $res->code = 100;
+                    $res->message = "볼래요 상태에 추가되었습니다.";
+                    echo json_encode($res, JSON_NUMERIC_CHECK);
+                    return;
+                }
+                else {
+                    updateLikedStatus($userId, $movieId);
+                    $res->isSuccess = TRUE;
+                    $res->code = 100;
+                    $res->message = "볼래요가 취소되었습니다.";
+                    echo json_encode($res, JSON_NUMERIC_CHECK);
+                    return;
+                }
+            }
+
             likePost($userId, $movieId);
             $res->isSuccess = TRUE;
             $res->code = 100;
-            $res->message = "영화 볼래요 추가 성공";
+            $res->message = "볼래요 상태에 추가 성공";
             echo json_encode($res, JSON_NUMERIC_CHECK);
             break;
 
+        case "likeCount":
+            http_response_code(200);
+            $movieId = $vars["movieId"];
+
+            if(!isMovie($movieId)){
+                $res->isSucces = FALSE;
+                $res->code = 203;
+                $res->message = "존재하지 않는 영화 ID입니다.";
+                echo json_encode($res, JSON_NUMERIC_CHECK);
+                return;
+            }
+
+            $res->result = likeCount($vars["movieId"]);
+            $res->isSuccess = TRUE;
+            $res->code = 100;
+            $res->message = "영화 좋아요 갯수 조회 성공";
+            echo json_encode($res, JSON_NUMERIC_CHECK);
+            break;
     }
 } catch (\Exception $e) {
     return getSQLErrorException($errorLogs, $e, $req);

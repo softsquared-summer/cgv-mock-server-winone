@@ -233,7 +233,26 @@ function isAlreadyLiked($userId, $movieId)
     $query = "SELECT EXISTS(
                             SELECT * 
                               FROM likes 
-                             WHERE usdrId= ? AND movieId = ?) AS exist;";
+                             WHERE userId= ? AND movieId = ?) AS exist;";
+
+    $st = $pdo->prepare($query);
+    $st->execute([$userId, $movieId]);
+    $st->setFetchMode(PDO::FETCH_ASSOC);
+    $res = $st->fetchAll();
+
+    $st = null;
+    $pdo = null;
+
+    return intval($res[0]["exist"]);
+}
+
+function likedState($userId, $movieId){
+    $pdo = pdoSqlConnect();
+    $query = "SELECT EXISTS(
+                            SELECT * 
+                              FROM likes 
+                             WHERE userId= ? AND movieId = ?
+                               AND isLiked = 0) AS exist;";
 
     $st = $pdo->prepare($query);
     $st->execute([$userId, $movieId]);

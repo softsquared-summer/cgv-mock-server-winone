@@ -15,7 +15,7 @@ date_default_timezone_set('Asia/Seoul');
 ini_set('default_charset', 'utf8mb4');
 
 //에러출력하게 하는 코드
-error_reporting(E_ALL); ini_set("display_errors", 1);
+//error_reporting(E_ALL); ini_set("display_errors", 1);
 
 //Main Server API
 $dispatcher = FastRoute\simpleDispatcher(function (FastRoute\RouteCollector $r) {
@@ -39,7 +39,9 @@ $dispatcher = FastRoute\simpleDispatcher(function (FastRoute\RouteCollector $r) 
     $r->addRoute('DELETE', '/movie/{movieId}', ['CgvController', 'movieDelete']); // API NO.6
     $r->addRoute('GET', '/movie/{movieId}/detail', ['CgvController', 'movieDetail']); // API NO.16 관련 소식 비율
 
-    $r->addRoute('POST', '/movie/{movieId}/liked', ['LikeController', 'likePost']);
+    $r->addRoute('POST', '/movie/{movieId}/liked', ['LikeController', 'likePost']); // API NO.17 볼래요 추가 취소 API
+    $r->addRoute('GET', '/movie/{movieId}/liked', ['LikeController', 'likeCount']); // API NO.18 관련 소식 비율
+
 
     $r->addRoute('GET', '/book', ['BookController', 'selectMovie']); // API NO.7
     $r->addRoute('GET', '/book/{movieId}', ['BookController', 'checkTheater']); // API NO.8
@@ -53,7 +55,7 @@ $dispatcher = FastRoute\simpleDispatcher(function (FastRoute\RouteCollector $r) 
     $r->addRoute('POST', '/review', ['ReviewController', 'reviewPost']); // API NO.13 영화 리뷰 등록 API
     $r->addRoute('DELETE', '/review/{movieId}', ['ReviewController', 'reviewDelete']); // API NO.14 특정 영화 본인 리뷰 삭제 API
     $r->addRoute('GET', '/review/{movieId}', ['ReviewController', 'reviewMovie']); // API NO.15 특정영화조회 리뷰 API
-
+    $r->addRoute('GET', '/review/{movieId}/detail', ['ReviewController', 'reviewDetail']); // API NO.19 실관람평 상세 정보 API
 
 
     //$r->addRoute('POST', '/book/{movieId}/theater/{theaterId}', ['BookController', 'bookMovie']);

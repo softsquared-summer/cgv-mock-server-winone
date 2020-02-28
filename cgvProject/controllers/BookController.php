@@ -98,7 +98,7 @@ try {
                 $res->code = 100;
                 $res->message = "영화 예매 정보창 조회 성공";
                 echo json_encode($res, JSON_NUMERIC_CHECK);
-                break;
+                return;
             } else {
                 if(compareEqualDate($movieTimeId)){
                     if(compareCurTime($movieTimeId)){
@@ -107,7 +107,7 @@ try {
                         $res->code = 100;
                         $res->message = "영화 예매 정보창 조회 성공";
                         echo json_encode($res, JSON_NUMERIC_CHECK);
-                        break;
+                        return ;
                     }
                     else {
                         $res->isSucces = FALSE;
@@ -155,7 +155,7 @@ try {
             $countSpecial = $req->countSpecial;
             if(!$countAdult) $countAdult = 0;
             if(!$countStudent) $countStudent = 0;
-            if($countSpecial) $countSpecial = 0;
+            if(!$countSpecial) $countSpecial = 0;
             $peopleCount = (int)$countAdult + (int)$countStudent + (int)$countSpecial;
             $movieTimeId = $vars["movieTimeId"];
 
@@ -180,7 +180,7 @@ try {
                 $res->code = 100;
                 $res->message = "영화 예매 성공";
                 echo json_encode($res, JSON_NUMERIC_CHECK);
-                break;
+                return;
             } else {
                 if(compareEqualDate($movieTimeId)){
                     if(compareCurTime($movieTimeId)){
@@ -196,7 +196,7 @@ try {
                         $res->code = 100;
                         $res->message = "영화 예매 성공";
                         echo json_encode($res, JSON_NUMERIC_CHECK);
-                        break;
+                        return;
                     }
                     else {
                         $res->isSucces = FALSE;
@@ -213,6 +213,7 @@ try {
                     return;
                 }
             }
+            break;
 
         case "pastTimeMovie":
             http_response_code(200);

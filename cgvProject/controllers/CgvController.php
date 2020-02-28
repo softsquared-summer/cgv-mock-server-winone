@@ -127,8 +127,7 @@ try {
 
         case "movieDetail":
             http_response_code(200);
-
-            $queryString = $_GET["condition"];
+            
             if(!isMovie($vars["movieId"])){
                 $res->isSucces = FALSE;
                 $res->code = 203;
@@ -137,7 +136,7 @@ try {
                 return;
             }
 
-            $res->result = movieDetail($vars["movieId"], $queryString);
+            $res->result = movieDetail($vars["movieId"]);
             $res->isSuccess = TRUE;
             $res->code = 100;
             $res->message = "영화 관련소식 조회 성공";

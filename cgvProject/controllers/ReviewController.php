@@ -113,8 +113,35 @@ try {
         case "reviewMovie":
             http_response_code(200);
             $movieId = $vars["movieId"];
-            $queryString = $_GET['sort'];
+            $queryString = $_GET['condition'];
+            if(!isMovie($movieId)){
+                $res->isSucces = FALSE;
+                $res->code = 203;
+                $res->message = "존재하지 않는 영화입니다.";
+                echo json_encode($res, JSON_NUMERIC_CHECK);
+                return;
+            }
+
             $res->result = reviewMovie($movieId, $queryString);
+
+            $res->isSuccess = TRUE;
+            $res->code = 100;
+            $res->message = "영화 리뷰 조회 성공";
+            echo json_encode($res, JSON_NUMERIC_CHECK);
+            break;
+
+        case "reviewDetail":
+            http_response_code(200);
+            $movieId = $vars["movieId"];
+            if(!isMovie($movieId)){
+                $res->isSucces = FALSE;
+                $res->code = 203;
+                $res->message = "존재하지 않는 영화입니다.";
+                echo json_encode($res, JSON_NUMERIC_CHECK);
+                return;
+            }
+
+            $res->result = reviewDetail($movieId);
 
             $res->isSuccess = TRUE;
             $res->code = 100;
