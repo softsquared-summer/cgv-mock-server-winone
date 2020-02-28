@@ -197,11 +197,11 @@ function movieDelete($movieId)
 }
 
 /*API NO.16*/
-function movieDetail($movieId, $queryString){
+function movieDetail($movieId){
 
     $pdo = pdoSqlConnect();
 
-    if($queryString == "sexRatio"){
+
         $query = "SELECT s.movieId, s.totalCount, s.maleRatio, s.femaleRatio
                     FROM (
                           SELECT m.movieId, TRUNCATE(m.count/(m.count + f.count) *100,0) AS maleRatio,
@@ -232,54 +232,44 @@ function movieDetail($movieId, $queryString){
 
         $st = $pdo->prepare($query);
         $st->execute([$movieId]);
-
         $st->setFetchMode(PDO::FETCH_ASSOC);
         $res = $st->fetchAll();
 
-        $st = null;
-        $pdo = null;
-        return $res[0];
-    }
-    else{
-        $query = "SELECT SUBSTRING(year(now()) - year(u.birth), 1,1) AS age, count(*) as count, t.movieId
+        $percentQuery = "SELECT SUBSTRING(year(now()) - year(u.birth), 1,1) AS age, count(*) as count, t.movieId
                FROM ticketing t
                LEFT JOIN users u on t.userId = u.userId
               GROUP BY age, t.movieId
              HAVING t.movieId = ?";
 
-        $st = $pdo->prepare($query);
+        $st = $pdo->prepare($percentQuery);
         $st->execute([$movieId]);
-
-
         $st->setFetchMode(PDO::FETCH_ASSOC);
-        $res = $st->fetchAll();
+        $percentAge = $st->fetchAll();
 
         $sum = 0;
-        for($i = 0; $i < count($res); $i++){
-            $sum += $res[$i]["count"];
+        for($i = 0; $i < count($percentAge); $i++){
+            $sum += $percentAge[$i]["count"];
         }
         for($i = 0; $i < 5; $i++){
-            if($res[$i]["age"] == 1){
-                $res[$i]["count"] = round((int)$res[$i]["count"] / $sum * 100);
+            if($percentAge[$i]["age"] == 1){
+                $res[0]["teenAgePercent"] = round((int)$percentAge[$i]["count"] / $sum * 100);
             }
-            else if($res[$i]["age"] == 2){
-                $res[$i]["count"] = round((int)$res[$i]["count"] / $sum * 100);
+            else if($percentAge[$i]["age"] == 2){
+                $res[0]["twentiesPercent"] = round((int)$percentAge[$i]["count"] / $sum * 100);
             }
-            else if($res[$i]["age"] == 3){
-                $res[$i]["count"] = round((int)$res[$i]["count"] / $sum * 100);
+            else if($percentAge[$i]["age"] == 3){
+                $res[0]["thirtiesPercent"] = round((int)$percentAge[$i]["count"] / $sum * 100);
             }
-            else if($res[$i]["age"] == 4){
-                $res[$i]["count"] = round((int)$res[$i]["count"] / $sum * 100);
+            else if($percentAge[$i]["age"] == 4){
+                $res[0]["fortiesPercent"] = round((int)$percentAge[$i]["count"] / $sum * 100);
             }
             else {
-                $res[$i]["count"] = round((int)$res[4]["count"] / $sum * 100);
+                $res[0]["fiftiesPercent"] = round((int)$percentAge[4]["count"] / $sum * 100);
             }
 
         }
+
         $st = null;
         $pdo = null;
-        return $res;
-    }
-
-    // return $res[0];
+        return $res[0];
 }
