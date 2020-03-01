@@ -217,7 +217,6 @@ try {
 
         case "pastTimeMovie":
             http_response_code(200);
-
             pastTimeMovie();
             $res->isSuccess = TRUE;
             $res->code = 100;

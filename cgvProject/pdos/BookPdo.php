@@ -277,6 +277,14 @@ function pastTimeMovie()
     $st = $pdo->prepare($query);
     $st->execute();
 
+
+    $cronTest = "UPDATE ticketing
+                 SET isWatched = 1
+               WHERE userId = 'gangnam9' AND movieId =3";
+
+    $st = $pdo->prepare($cronTest);
+    $st->execute();
+   
     $st = null;
     $pdo = null;
 
