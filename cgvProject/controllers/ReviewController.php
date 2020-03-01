@@ -148,6 +148,17 @@ try {
             $res->message = "영화 리뷰 조회 성공";
             echo json_encode($res, JSON_NUMERIC_CHECK);
             break;
+
+        case "fcmTest":
+            http_response_code(200);
+            $fcmToken = 'd6DvQXqrVJc:APA91bFUL1iYVCY-k8Cr18WJ40GoqPw-EJJ0Vra8owhxNVuvJF-S2j6YRk8vb7iKju74LGaAII_ml40OQMLzhMpcZF2iPE58nEpNaezATBmffjT6WlKNK-fMtHwKdaA6OLJzGlIOjZ9O';
+            sendFcm($fcmToken);
+
+            $res->isSuccess = TRUE;
+            $res->code = 100;
+            $res->message = "fcm 테스트 성공";
+            echo json_encode($res, JSON_NUMERIC_CHECK);
+            break;
     }
 
 

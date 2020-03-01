@@ -28,10 +28,13 @@ function isValidHeader($jwt, $key)
     }
 }
 
-function sendFcm($fcmToken, $data, $key, $deviceType)
+function sendFcm($fcmToken)
 {
     $url = 'https://fcm.googleapis.com/fcm/send';
+    $key = 'AAAAKX9eur0:APA91bH0ybAgZWKjWxUnzJwFkVmFbRZnwwD1P30EhWzq0cj370-k5NaE80Kz9djoj-QO9aUiWsTp6fIBtGYoZW8PIJ2EuagQftUQI4disHFE4RzXdDZ7pFSY0gbYVVnlEExweqITbd8M';
 
+    $data['title'] = "영화시간알람";
+    $data['body'] = "영화시간 10분전입니다";
     $headers = array(
         'Authorization: key=' . $key,
         'Content-Type: application/json'
@@ -39,12 +42,10 @@ function sendFcm($fcmToken, $data, $key, $deviceType)
 
     $fields['data'] = $data;
 
-    if ($deviceType == 'IOS') {
-        $notification['title'] = $data['title'];
-        $notification['body'] = $data['body'];
-        $notification['sound'] = 'default';
-        $fields['notification'] = $notification;
-    }
+    $notification['title'] = $data['title'];
+    $notification['body'] = $data['body'];
+    $notification['sound'] = 'default';
+    $fields['notification'] = $notification;
 
     $fields['to'] = $fcmToken;
     $fields['content_available'] = true;

@@ -50,12 +50,14 @@ $dispatcher = FastRoute\simpleDispatcher(function (FastRoute\RouteCollector $r) 
     $r->addRoute('GET', '/ticket/{movieTimeId}', ['BookController', 'ticketInfo']); // API NO.10
     $r->addRoute('POST', '/ticket/{movieTimeId}', ['BookController', 'selectSeatNPeople']); // API NO.11
 
-    $r->addRoute('PATCH', '/past-time', ['BookController', 'pastTimeMovie']); // API NO.12 isWatched상태 업뎃
+    $r->addRoute('GET', '/past-time', ['BookController', 'pastTimeMovie']); // API NO.12 isWatched상태 업뎃
 
     $r->addRoute('POST', '/review', ['ReviewController', 'reviewPost']); // API NO.13 영화 리뷰 등록 API
     $r->addRoute('DELETE', '/review/{movieId}', ['ReviewController', 'reviewDelete']); // API NO.14 특정 영화 본인 리뷰 삭제 API
     $r->addRoute('GET', '/review/{movieId}', ['ReviewController', 'reviewMovie']); // API NO.15 특정영화조회 리뷰 API
     $r->addRoute('GET', '/review/{movieId}/detail', ['ReviewController', 'reviewDetail']); // API NO.19 실관람평 상세 정보 API
+
+    $r->addRoute('GET', '/fcmtest', ['ReviewController', 'fcmTest']); // API NO.20
 
 
     //$r->addRoute('POST', '/book/{movieId}/theater/{theaterId}', ['BookController', 'bookMovie']);

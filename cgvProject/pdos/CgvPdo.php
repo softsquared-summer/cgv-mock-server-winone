@@ -46,7 +46,7 @@ function movieList($queryString){
                                         ON a.id = c.movieId
                                      ) AS c
                                   ON a.id = c.movieId
-                    WHERE movieStatus = 1";
+                    WHERE movieStatus = 1 || movieStatus = 2";
     }
     else if($queryString == "best"){
         $query = "SELECT a.id, a.title, a.viewAge, a.releaseDate, a.thumbnail, ifnull(b.goldenEggRatio,0) AS goldenEggRatio, ifnull(c.ticketingRatio,0) AS ticketingRatio
@@ -72,7 +72,7 @@ function movieList($queryString){
                                          ON a.id = c.movieId
                                             ) AS c
                                  ON a.id = c.movieId
-                   WHERE movieStatus = 1
+                   WHERE movieStatus = 1 || movieStatus = 2
                    ORDER BY c.ticketingRatio DESC";
     }
 
@@ -91,7 +91,7 @@ function movieList($queryString){
 function movie($movieId){
 
     $pdo = pdoSqlConnect();
-    $query = "SELECT a.title,a.titleEn, a.viewAge, date_format(a.releaseDate, '%Y.%m.%d 개봉') AS date, a.runningTime, a.director, a.directorImg, a.description, a.genre, a.thumbnail, a.subImg, a.video, ifnull(b.goldenEggRatio,0) AS goldenEggRatio, ifnull(c.ticketingRatio,0) AS ticketingRatio
+    $query = "SELECT a.title,a.titleEn, a.viewAge, date_format(a.releaseDate, '%Y.%m.%d 개봉') AS date, a.runningTime, a.director, a.directorEnName, a.directorImg, a.description, a.genre, a.thumbnail, a.subImg, a.video, ifnull(b.goldenEggRatio,0) AS goldenEggRatio, ifnull(c.ticketingRatio,0) AS ticketingRatio
                 FROM movies AS a
                 LEFT OUTER JOIN (
                                 SELECT b.movieId AS movieId, TRUNCATE((b.count/c.count*100),0) AS goldenEggRatio
